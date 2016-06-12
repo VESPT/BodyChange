@@ -1,5 +1,6 @@
 package sessue.bodychange;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,17 +10,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-import sessue.bodychange.OpenCV.Reader;
+import sessue.bodychange.OpenCV.Transform;
 
 public class MainActivity extends AppCompatActivity {
     // メンバ変数
     private static final String TAG = "MainActivity"; // Debug TAG
-    private Reader oppyReader;
+    private Transform oppyTransform;
 
     // Initialize OpenCV
     static {
@@ -54,8 +56,12 @@ public class MainActivity extends AppCompatActivity {
             Log.e("TEST", "Cannot connect to OpenCV Manager");
         }
 
-        oppyReader = new Reader(this);
-        oppyReader.DisplayImage();
+        oppyTransform = new Transform();
+        Bitmap dispImage; // 最終的に表示する画像
+        dispImage = oppyTransform.TransformImage(getResources()); // getResourceでアプリのリソースのデータ群を取得する
+        //  処理をした画像を表示する
+        ImageView iv = (ImageView)findViewById(R.id.ImageView01);
+        iv.setImageBitmap(dispImage);
     }
 
     @Override

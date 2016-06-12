@@ -1,15 +1,9 @@
 package sessue.bodychange.OpenCV;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import sessue.bodychange.R;
 
@@ -27,18 +21,19 @@ import java.util.Date;
 /**
  * Created by vesp on 16/05/30.
  */
-public class Reader extends Activity {
-    Activity activity;
-    public Reader(Activity inActivity){
+public class Transform {
+    //Activity activity;
+
+    //private Transform(){}
+    /*public Transform(Activity inActivity){
         activity = inActivity;
-    }
+    }*/
+    public Transform(){}
 
-
-
-    public void DisplayImage(){
+    public Bitmap TransformImage(Resources appResource){
         // 画像読み込み（OpenCVでなく、アンドロイドの関数）
         // アプリのリソースを管理するインスタンス　getResourcesはActivityのクラス
-        Resources appResource = activity.getResources();
+        //Resources appResource = activity.getResources();
         Bitmap oppyBmpSrc = BitmapFactory.decodeResource(appResource, R.drawable.anime2);
         //Bitmap oppyBmpSrc = BitmapFactory.decodeResource(appResource, R.drawable.real2);
 
@@ -61,9 +56,7 @@ public class Reader extends Activity {
         //  MatからBitmapに変換
         Utils.matToBitmap(oppyMat, oppyBmpDst);
 
-        //  処理をした画像を表示する
-        ImageView iv = (ImageView)activity.findViewById(R.id.ImageView01);
-        iv.setImageBitmap(oppyBmpDst);
+        return oppyBmpDst;
 
         // 画像を保存する
         /*
@@ -105,12 +98,23 @@ public class Reader extends Activity {
             throw e;
         }
 
+        /*
         // save index
         ContentValues values = new ContentValues();
-        ContentResolver contentResolver = activity.getContentResolver();
+        ContentResolver contentResolver = getContentResolver();
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         values.put(MediaStore.Images.Media.TITLE, fileName);
         values.put("_data", AttachName);
         contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        */
+    }
+
+    // DeepCopyするためのメソッド
+    protected Object clone() throws CloneNotSupportedException {
+        // このオブジェクトのコピーを記述します。
+        // この例だと、実はあまり意味がありません（return super.clone();でによる浅いコピーを返だけでも同じ）。
+        Transform cp = new Transform();
+        //cp.s = this.s;
+        return cp;
     }
 }
