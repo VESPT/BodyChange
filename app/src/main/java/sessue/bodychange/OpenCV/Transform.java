@@ -4,24 +4,39 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 
 import sessue.bodychange.R;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.Video;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import static org.opencv.imgproc.Imgproc.goodFeaturesToTrack;
 
 /**
  * Created by vesp on 16/05/30.
  */
 public class Transform {
+    String Tag = "Transform";
     //Activity activity;
 
     //private Transform(){}
@@ -34,27 +49,46 @@ public class Transform {
         // 画像読み込み（OpenCVでなく、アンドロイドの関数）
         // アプリのリソースを管理するインスタンス　getResourcesはActivityのクラス
         //Resources appResource = activity.getResources();
-        Bitmap oppyBmpSrc = BitmapFactory.decodeResource(appResource, R.drawable.anime2);
+        Bitmap oppyBmpSrcBefore = BitmapFactory.decodeResource(appResource, R.drawable.goodfeature_before);
+        Bitmap oppyBmpSrcAfter  = BitmapFactory.decodeResource(appResource, R.drawable.goodfeature_after);
         //Bitmap oppyBmpSrc = BitmapFactory.decodeResource(appResource, R.drawable.real2);
 
         //  画像をMatへ変換
-        Mat oppyMat = new Mat(oppyBmpSrc.getHeight(), oppyBmpSrc.getWidth(), CvType.CV_8UC1);;
-        Utils.bitmapToMat(oppyBmpSrc, oppyMat);
+        Mat tmpMatImgBefore = new Mat(oppyBmpSrcBefore.getHeight(), oppyBmpSrcBefore.getWidth(), CvType.CV_8UC3);
+        Mat tmpMatImgAfter  = new Mat(oppyBmpSrcAfter.getHeight(),  oppyBmpSrcAfter.getWidth(),  CvType.CV_8UC3);
+        Utils.bitmapToMat(oppyBmpSrcBefore, tmpMatImgBefore);
+        Utils.bitmapToMat(oppyBmpSrcAfter,  tmpMatImgAfter);
 
         //  グレースケール変換
-        Imgproc.cvtColor(oppyMat, oppyMat, Imgproc.COLOR_RGB2GRAY);
+        /*
+        Mat oppyMatBefore = new Mat(oppyBmpSrcBefore.getHeight(), oppyBmpSrcBefore.getWidth(), CvType.CV_8UC1);
+        Mat oppyMatAfter = new Mat(oppyBmpSrcAfter.getHeight(), oppyBmpSrcAfter.getWidth(), CvType.CV_8UC1);
+        //Mat oppyMat = Imgcodecs.imread("test.jpg", 1);
+        Imgproc.cvtColor(tmpMatImgBefore, oppyMatBefore, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(tmpMatImgAfter, oppyMatAfter, Imgproc.COLOR_RGB2GRAY);
+        */
 
         //  Cannyでエッジ検出
-        Imgproc.Canny(oppyMat, oppyMat, 80, 100);
+        //Imgproc.Canny(oppyMat, oppyMat, 80, 100);
+        // 特徴点取得
+        //oppyMat = getFeature(oppyMat);
+        // オプティカルフロー描写
+        CalcOpticalFlow calcOpticalFlow = new CalcOpticalFlow();
+        if(calcOpticalFlow.doOpticalFlow(tmpMatImgBefore, tmpMatImgAfter)){
+            Log.d(Tag,"オプティカルフロー成功");
+        }
+        else{
+            Log.d(Tag,"オプティカルフロー失敗");
+        }
 
         //  Bitmapに変換する前にRGB形式に変換
-        Imgproc.cvtColor(oppyMat, oppyMat, Imgproc.COLOR_GRAY2RGBA, 4);
+        //Imgproc.cvtColor(oppyMatAfter, oppyMatAfter, Imgproc.COLOR_GRAY2RGBA, 4);
 
         //  Bitmap dst に空のBitmapを作成
-        Bitmap oppyBmpDst = Bitmap.createBitmap(oppyMat.width(), oppyMat.height(), Bitmap.Config.ARGB_8888);
+        Bitmap oppyBmpDst = Bitmap.createBitmap(tmpMatImgAfter.width(), tmpMatImgAfter.height(), Bitmap.Config.ARGB_8888);
 
         //  MatからBitmapに変換
-        Utils.matToBitmap(oppyMat, oppyBmpDst);
+        Utils.matToBitmap(tmpMatImgAfter, oppyBmpDst);
 
         return oppyBmpDst;
 
@@ -68,6 +102,7 @@ public class Transform {
         }
         */
     }
+
 
     // 画像を保存する
     private void saveBitmap(Bitmap saveImage) throws IOException {
