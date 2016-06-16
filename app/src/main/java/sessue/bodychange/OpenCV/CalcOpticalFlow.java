@@ -105,9 +105,9 @@ public class CalcOpticalFlow {
             Imgproc.goodFeaturesToTrack(
                     inputImage,
                     corners,
-                    corner_count,
-                    0.01,
-                    5);
+                    corner_count,   // コーナーの数
+                    0.01,           // QualityLevel
+                    5);             // mindistance
             */
             }catch(UnsatisfiedLinkError e){ // JNIリンカエラーチェック
                 Log.d(Tag, "LinkerError");
